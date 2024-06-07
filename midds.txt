@@ -1,0 +1,29 @@
+- Mongoose :
+    
+    - Is schema-based solution for modeling and interacting with MongoDB data.
+    -> const mongoose = require('mongoose');
+
+- dotenv :
+
+    - For reading from env file.
+    -> const dotenv = require('dotenv');
+
+- Morgan :
+
+    - For logging HTTP requests
+    -> const morgan = require('morgan');
+
+- Slugify :
+
+    - To slugify string. // Real Madrid -> real-madrid 
+    -> const slugify = require('slugify');
+
+- Express Async Handler :
+
+    - For handling exceptions.
+    -> const asyncHandler = require('express-async-handler')
+
+- Express Validator :
+
+    - To validate and sanitize incoming request data to ensure it meets defined criteria before processing.
+    -> const { query, validationResult } = require('express-validator');
