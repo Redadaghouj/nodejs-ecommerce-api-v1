@@ -27,7 +27,7 @@ exports.createCategory = asyncHandler(async (req, res) => {
  * @desc Get category by id
  * @route /api/v1/categories/:id
  * @method GET
- * @access Private
+ * @access Public
  */
 exports.getCategory = asyncHandler(async (req, res, next) => {
   const category = await Category.findById(req.params.id, { __v: false });
@@ -41,7 +41,7 @@ exports.getCategory = asyncHandler(async (req, res, next) => {
  * @desc Get all categories
  * @route /api/v1/categories
  * @method GET
- * @access Private
+ * @access Public
  */
 exports.getCategories = asyncHandler(async (req, res) => {
   const page = +req.query.page || 1;

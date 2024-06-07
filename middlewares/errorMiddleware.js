@@ -1,3 +1,16 @@
+const sendErrorForDev = (err, res) =>
+  res.status(err.statusCode).json({
+    message: err.message,
+    error: err,
+    stack: err.stack,
+  });
+
+const sendErrorForProd = (err, res) =>
+  res.status(err.statusCode).json({
+    message: err.message,
+    status: err.status,
+  });
+
 const globalError = (err, req, res, next) => {
   err.statusCode = err.statusCode || 500;
   if (process.env.NODE_ENV === 'development') {
@@ -5,21 +18,6 @@ const globalError = (err, req, res, next) => {
   } else {
     sendErrorForProd(err, res);
   }
-};
-
-const sendErrorForDev = (err, res) => {
-  return res.status(err.statusCode).json({
-    message: err.message,
-    error: err,
-    stack: err.stack,
-  });
-};
-
-const sendErrorForProd = (err, res) => {
-  return res.status(err.statusCode).json({
-    message: err.message,
-    status: err.status,
-  });
 };
 
 module.exports = globalError;
