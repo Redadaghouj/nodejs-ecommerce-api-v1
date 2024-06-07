@@ -12,7 +12,7 @@ const ApiError = require('../utils/apiError');
  */
 exports.createCategory = asyncHandler(async (req, res) => {
   const category = await Category.create({
-    ...req.body,
+    name: req.body.name,
     slug: slugify(req.body.name),
   });
   // newCategory.slug = slugify(req.body.name);
@@ -45,7 +45,7 @@ exports.getCategory = asyncHandler(async (req, res, next) => {
  */
 exports.getCategories = asyncHandler(async (req, res) => {
   const page = +req.query.page || 1;
-  const limit = +req.query.limit || 3;
+  const limit = +req.query.limit || 10;
 
   const categories = await Category.find({}, { __v: false })
     .skip((page - 1) * limit)
@@ -72,7 +72,7 @@ exports.updateCategory = asyncHandler(async (req, res, next) => {
   const categoryUpdated = await Category.findByIdAndUpdate(
     req.params.id,
     {
-      $set: { ...req.body, slug: slugify(req.body.name) },
+      $set: { name: req.body.name, slug: slugify(req.body.name) },
     },
     { new: true }
   );
