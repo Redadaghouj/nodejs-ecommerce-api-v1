@@ -15,6 +15,10 @@ const {
   updateCategoryValidator,
   deleteCategoryValidator,
 } = require('../utils/validators/categoryValidator');
+const subCategoryRoute = require('./subCategoryRoute');
+
+// Nested route
+router.use('/:id/subcategories', subCategoryRoute);
 
 router
   .route('/')

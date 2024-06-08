@@ -4,6 +4,21 @@ const SubCategory = require('../models/subCategoryModel');
 const statusText = require('../utils/httpStatusText');
 const ApiError = require('../utils/apiError');
 
+/** @route /api/v1/categories/:id/subcategories */
+exports.setCategoryIdToBody = (req, res, next) => {
+  if (!req.body.category) req.body.category = req.params.id;
+  next();
+};
+
+exports.createQueryObject = (req, res, next) => {
+  const query = {};
+  if (req.params.id) {
+    query.category = req.params.id; // i access to id of category because mergeParams allow me to
+  }
+  req.query = query;
+  next();
+};
+
 /**
  * @desc Create SubCategory
  * @route /api/v1/subcategories
@@ -12,6 +27,7 @@ const ApiError = require('../utils/apiError');
  */
 exports.createSubCategory = asyncHandler(async (req, res) => {
   const { name, category } = req.body;
+
   const subCategory = await SubCategory.create({
     name,
     slug: slugify(name),
@@ -30,7 +46,7 @@ exports.getSubCategories = asyncHandler(async (req, res) => {
   const page = +req.query.page || 1;
   const limit = +req.query.limit || 10;
 
-  const subCategories = await SubCategory.find({}, { __v: false })
+  const subCategories = await SubCategory.find(req.query, { __v: false })
     .skip((page - 1) * limit)
     .limit(limit);
   // .populate({ path: 'category', select: 'name -_id' })
