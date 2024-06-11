@@ -51,9 +51,6 @@ exports.getBrands = asyncHandler(async (req, res) => {
     .skip((page - 1) * limit)
     .limit(limit);
 
-  if (!brands) {
-    res.status(200).json({ status: statusText.SUCCESS, data: null });
-  }
   res.status(200).json({
     status: statusText.SUCCESS,
     result: brands.length,

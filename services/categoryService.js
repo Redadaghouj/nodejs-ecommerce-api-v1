@@ -50,10 +50,6 @@ exports.getCategories = asyncHandler(async (req, res) => {
   const categories = await Category.find({}, { __v: false })
     .skip((page - 1) * limit)
     .limit(limit);
-
-  if (!categories) {
-    res.status(200).json({ status: statusText.SUCCESS, data: null });
-  }
   res.status(200).json({
     status: statusText.SUCCESS,
     result: categories.length,

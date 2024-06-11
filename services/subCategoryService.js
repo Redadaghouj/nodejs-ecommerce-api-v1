@@ -50,11 +50,6 @@ exports.getSubCategories = asyncHandler(async (req, res) => {
     .skip((page - 1) * limit)
     .limit(limit);
   // .populate({ path: 'category', select: 'name -_id' })
-
-  if (!subCategories) {
-    res.status(200).json({ status: statusText.SUCCESS, data: null });
-  }
-
   res.status(200).json({
     status: statusText.SUCCESS,
     result: subCategories.length,
