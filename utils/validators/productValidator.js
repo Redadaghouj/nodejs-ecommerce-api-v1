@@ -1,5 +1,7 @@
 const { check } = require('express-validator');
 const validatorMiddleware = require('../../middlewares/validatorMiddleware');
+const Category = require('../../models/categoryModel');
+const SubCategory = require('../../models/subCategoryModel');
 
 const createProductValidator = [
   check('name')
@@ -53,11 +55,46 @@ const createProductValidator = [
     .notEmpty()
     .withMessage('Product must be belong to category')
     .isMongoId()
-    .withMessage('Invalid category id format'),
-  check('subcategory')
+    .withMessage('Invalid category id format')
+    .custom(async (id) => {
+      const category = await Category.findById(id);
+      if (!category) {
+        throw new Error('Category not found');
+      }
+      return true;
+    }),
+  check('subcategories')
     .optional()
+    .isArray()
+    .withMessage('Sub-categories should be array of string')
     .isMongoId()
-    .withMessage('Invalid sub-category id format'),
+    .withMessage('Invalid sub-categories id format')
+    .custom(async (ids, { req }) => {
+      const hasDuplicateValues = ids.length !== new Set(ids).size;
+      if (hasDuplicateValues) {
+        throw new Error('Sub-categories are duplicate');
+      }
+      const subCategories = await SubCategory.find({ _id: { $in: ids } });
+      if (subCategories.length < ids.length) {
+        throw new Error('Sub-categories not found');
+      }
+      req.subCategories = subCategories;
+      return true;
+    })
+    .custom(async (ids, { req }) => {
+      const { subCategories } = req;
+      const { category } = req.body;
+      if (subCategories) {
+        subCategories.forEach((subCat) => {
+          if (subCat.category.toString() !== category) {
+            throw new Error(
+              `Sub-category '${subCat.name}' id: ${subCat._id} not belong to category id: ${category}`
+            );
+          }
+        });
+      }
+      return true;
+    }),
   check('brand').optional().isMongoId().withMessage('Invalid brand id format'),
   check('ratingsAverage')
     .optional()
@@ -133,11 +170,46 @@ const updateProductValidator = [
     .notEmpty()
     .withMessage('Product must be belong to category')
     .isMongoId()
-    .withMessage('Invalid category id format'),
-  check('subcategory')
+    .withMessage('Invalid category id format')
+    .custom(async (ids, { req }) => {
+      const hasDuplicateValues = ids.length !== new Set(ids).size;
+      if (hasDuplicateValues) {
+        throw new Error('Sub-categories are duplicate');
+      }
+      const subCategories = await SubCategory.find({ _id: { $in: ids } });
+      if (subCategories.length < ids.length) {
+        throw new Error('Sub-categories not found');
+      }
+      req.subCategories = subCategories;
+      return true;
+    })
+    .custom(async (ids, { req }) => {
+      const { subCategories } = req;
+      const { category } = req.body;
+      if (subCategories) {
+        subCategories.forEach((subCat) => {
+          if (subCat.category.toString() !== category) {
+            throw new Error(
+              `Sub-category '${subCat.name}' id: ${subCat._id} not belong to category id: ${category}`
+            );
+          }
+        });
+      }
+      return true;
+    }),
+  check('subcategories')
+    .isArray()
+    .withMessage('Sub-categories should be array of string')
     .optional()
     .isMongoId()
-    .withMessage('Invalid sub-category id format'),
+    .withMessage('Invalid sub-categories id format')
+    .custom(async (ids) => {
+      const subCategories = await SubCategory.find({ _id: { $in: ids } });
+      if (subCategories.length < ids.length) {
+        throw new Error('Sub-categories not found');
+      }
+      return true;
+    }),
   check('brand').optional().isMongoId().withMessage('Invalid brand id format'),
   check('ratingsAverage')
     .optional()
