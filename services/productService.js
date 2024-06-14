@@ -23,13 +23,27 @@ exports.createProduct = asyncHandler(async (req, res) => {
  * @access Private
  */
 exports.getProducts = asyncHandler(async (req, res) => {
+  const reqQueryClone = { ...req.query };
+  const excludesFields = ['page', 'limit'];
+  excludesFields.forEach((field) => delete reqQueryClone[field]);
+
+  let queryStr = JSON.stringify(reqQueryClone);
+  queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
+  queryStr = JSON.parse(queryStr);
+  console.log(queryStr);
+
   const page = +req.query.page || 1;
   const limit = +req.query.limit || 10;
 
-  const products = await Product.find({}, { __v: false })
+  // Build query
+  const mongooseQuery = Product.find(queryStr, { __v: false })
     .skip((page - 1) * limit)
     .limit(limit)
     .populate({ path: 'category', select: 'name -_id' });
+
+  // Execute query
+  const products = await mongooseQuery;
+
   res.status(200).json({
     status: statusText.SUCCESS,
     result: products.length,
