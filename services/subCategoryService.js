@@ -85,9 +85,7 @@ exports.getSubCategory = asyncHandler(async (req, res, next) => {
 exports.updateSubCategory = asyncHandler(async (req, res, next) => {
   const { name, category } = req.body;
   const updateFields = {
-    // eslint-disable-next-line node/no-unsupported-features/es-syntax
     ...(name && { name, slug: slugify(name) }),
-    // eslint-disable-next-line node/no-unsupported-features/es-syntax
     ...(category && { category }),
   };
 

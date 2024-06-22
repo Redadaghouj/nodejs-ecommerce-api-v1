@@ -24,22 +24,38 @@ exports.createProduct = asyncHandler(async (req, res) => {
  */
 exports.getProducts = asyncHandler(async (req, res) => {
   const reqQueryClone = { ...req.query };
-  const excludesFields = ['page', 'limit'];
+  const excludesFields = ['page', 'limit', 'sort', 'fields'];
   excludesFields.forEach((field) => delete reqQueryClone[field]);
 
   let queryStr = JSON.stringify(reqQueryClone);
+
   queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
   queryStr = JSON.parse(queryStr);
-  console.log(queryStr);
 
   const page = +req.query.page || 1;
   const limit = +req.query.limit || 10;
 
   // Build query
-  const mongooseQuery = Product.find(queryStr, { __v: false })
+  const mongooseQuery = Product.find(queryStr)
     .skip((page - 1) * limit)
     .limit(limit)
     .populate({ path: 'category', select: 'name -_id' });
+  // Sorting
+  if (req.query.sort) {
+    const sortedFields = req.query.sort.replaceAll(',', ' ');
+    mongooseQuery.sort(sortedFields);
+  } else {
+    mongooseQuery.sort('-createdAt');
+  }
+
+  // Fields limiting
+  if (req.query.fields) {
+    const fields = req.query.fields.replaceAll(',', ' ');
+    console.log(fields);
+    mongooseQuery.select(fields);
+  } else {
+    mongooseQuery.select('-__v');
+  }
 
   // Execute query
   const products = await mongooseQuery;
