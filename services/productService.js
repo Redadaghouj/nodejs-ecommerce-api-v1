@@ -57,6 +57,10 @@ exports.getProducts = asyncHandler(async (req, res) => {
     mongooseQuery.select('-__v');
   }
 
+  // Search
+  // if (req.query.keyword) {
+  // }
+
   // Execute query
   const products = await mongooseQuery;
 
